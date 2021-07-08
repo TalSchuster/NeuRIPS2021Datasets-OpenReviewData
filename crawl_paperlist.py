@@ -6,16 +6,23 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-driver = webdriver.Edge('msedgedriver.exe')
-driver.get('https://openreview.net/group?id=ICLR.cc/2021/Conference')
+from selenium.webdriver import Chrome
+from selenium.webdriver.chrome.options import Options
 
-cond = EC.presence_of_element_located((By.XPATH, '//*[@id="all-submissions"]/nav/ul/li[13]/a'))
+options = Options()
+options.add_argument('-headless')
+driver = Chrome(chrome_options=options)
+
+#driver = webdriver.Chrome('chromedriver')
+driver.get('https://openreview.net/group?id=NeurIPS.cc/2021/Track/Datasets_and_Benchmarks/Round1')
+
+cond = EC.presence_of_element_located((By.XPATH, '//*[@id="all-submissions"]/nav/ul/li/a'))
 WebDriverWait(driver, 60).until(cond)
 
 with open('paperlist.tsv', 'w', encoding='utf8') as f:
     f.write('\t'.join(['paper_id', 'title', 'link', 'keywords', 'abstract'])+'\n')
 
-for page in tqdm(range(1, 61)):
+for page in tqdm(range(1, 10)):
     text = ''
     elems = driver.find_elements_by_xpath('//*[@id="all-submissions"]/ul/li')
     for i, elem in enumerate(elems):
@@ -44,7 +51,7 @@ for page in tqdm(range(1, 61)):
 
     # next page
     try:
-        driver.find_element_by_xpath('//*[@id="all-submissions"]/nav/ul/li[13]/a').click()
+        driver.find_element_by_xpath('//*[@id="all-submissions"]/nav/ul/li[7]/a').click()
         time.sleep(2) # NOTE: increase sleep time if needed
     except:
         print('no next page, exit.')
